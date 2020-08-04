@@ -11,6 +11,7 @@ public class Polyom implements Comparable<Polyom> {
 	private final List<List<Boolean>> cells;
 	private final int nr;
 	private final int nc;
+	public static boolean dbg = false;
 
 	Polyom(String in) {
 		cells = new ArrayList<>();
@@ -68,32 +69,41 @@ public class Polyom implements Comparable<Polyom> {
 		return better;
 	}
 
+	@Override
 	public int compareTo(Polyom other) {
 		// assumme packed
-		if  (nr == other.getRowCount()) {
-			// as a (questionable) convention, treat wide as higher
-			if (nc == other.getColCount()) {
+		// the lower the better
+		if (dbg) {
+			System.out.print(this + " <> " + other + "   ");
+		}
+		if (nr == other.getRowCount()) {
+			// if same height, the narrower the better
+			//  ( this will can give a higher binary value if using the order 
+			if  (nc == other.getColCount()) {
 				for (int r = nr-1; r >= 0; r--) {
 					List<Boolean> ours = cells.get(r);
 					List<Boolean> theirs = other.cells.get(r);
 					for (int c = nc-1; c >= 0; c--) {
 						if (ours.get(c)) {
 							if (!theirs.get(c)) {
-	//							System.out.println("cell at " + r + ", " + c + ": this");
+								if (dbg) System.out.println("win at " + r + ", " + c);
 								return 1;
 							}
 						} else if (theirs.get(c)) {
-	//						System.out.println("cell at " + r + ", " + c + ": that");
+							if (dbg) System.out.println("lose at " + r + ", " + c );
 							return -1;
 						}
 					}
 				}
+				if (dbg) System.out.println("tie");
 				return 0;
 			} else {
+				if (dbg) System.out.println("by columns " + (nc - other.getColCount()));
 				return nc - other.getColCount();
 			}
 		} else {
-			return nr - other.getRowCount();
+			if (dbg) System.out.println("by rows " + (nr - other.getRowCount() ));
+			return nr - other.getRowCount() ;
 		}
 	}
 	
@@ -112,11 +122,17 @@ public class Polyom implements Comparable<Polyom> {
 	}
 	
 	String show() {
-		return cells.stream().map(r -> r.stream().map(cell -> cell ? "X" : " ")
+		return cells.stream().map(r -> r.stream().map(cell -> cell ? "X" : ".")
 				.collect(Collectors.joining()))
 				.collect(Collectors.joining("/"));
 	}
 	
+	@Override
+	public String toString()
+	{
+		return show();
+	}
+
 	Polyom pruneEmpties() {
 		// may have extra rows or columns
 		List<List<Boolean>> result = cells;

@@ -10,24 +10,34 @@ import java.util.Set;
 public class Trial {
 	private static final int LIMIT = 6;
 	public static void main(String[] args) {
-		Set<Polyom> polys = Collections.singleton(new Polyom("X"));
+		Polyom monomino = new Polyom("X");
+		writeForExcel("1", monomino);
+		Set<Polyom> polys = Collections.singleton(monomino);
 		
 		for (int order = 2; order <= LIMIT; order++) {
+//			System.out.println("----------------");
 			Set<Polyom> nextPolys = new HashSet<>();
 			for (Polyom polyom : polys) {
 				nextPolys.addAll(polyom.nextGeneration());
 			}
 //			System.out.println("Order " + order + " : " + nextPolys.size());
 			List<Polyom> inOrder = new ArrayList<>(nextPolys);
+//			if (order == LIMIT) {
+//				Polyom.dbg = true;
+//			}
 			Collections.sort(inOrder);
+			String orderString = Integer.toString(order);
 			for (Polyom child : inOrder) {
-//				System.out.println("   ." + child.show().replaceAll("/",".\n   .") + ".\n");
-				System.out.println(child.show().replaceAll("","\t").replaceAll("/","\n") + "\n");
-//				System.out.println("      ." + child.show() + ".");
+				writeForExcel(orderString, child);
 			}
-			System.out.println();
 			polys = nextPolys;
 		}
+	}
+
+	private static void writeForExcel( String orderString, Polyom child )
+	{
+//		System.out.println(child.getRowCount() + " : " + child.getColCount() + "   :" + child);
+		System.out.println(child.show().replaceAll("","\t").replaceAll("X", orderString).replaceAll("/","\n") + "\n");
 	}
 	
 	public static void main1(String[] args) {
